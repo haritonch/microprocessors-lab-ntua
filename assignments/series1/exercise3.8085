@@ -1,0 +1,63 @@
+START:
+	MVI D,FEH ; set LSB led on
+	MVI E,FFH ; set direction to left
+	MVI H,00H ; LSB previous state input
+	MVI L,00H ; LSB current state input
+	JMP LEFT
+CONTROL:
+  	CALL MSB_ON
+  	CALL CHECK
+	MOV A,E
+	ANI 01H
+	JZ RIGHT
+	JMP LEFT
+LEFT:
+	MOV A,D
+	STA 3000H
+	CALL HALF_SEC_DELAY
+	RLC
+	MOV D,A
+	CPI 7FH
+	JZ CHANGE_DIR
+	JMP CONTROL
+RIGHT:
+	MOV A,D
+	STA 3000H
+	CALL HALF_SEC_DELAY
+	RRC
+	MOV D,A
+	CPI FEH
+	JZ CHANGE_DIR
+	JMP CONTROL
+
+; functions
+CHECK:
+	MOV H,L		; set previous = current
+	LDA 2000H		; read new current state
+	ANI 01H		
+	MOV L,A		; save current state
+	MOV A,H		; A = previous
+	CPI 00H		; if previous == 0
+	RZ			; return
+	MOV A,L		; A = current
+	CPI 01H		; if current == 1
+	RZ
+	CALL CHANGE_DIR
+	RET
+CHANGE_DIR:
+	MOV A,E		; A = direction
+	CMA			; change direction
+	MOV E,A		; save new direction
+	RET
+MSB_ON:
+	LDA 2000H
+	ANI 80H
+	JZ MSB_ON
+	RET
+HALF_SEC_DELAY:
+  PUSH B
+  LXI B,01F4H      ;500 msec
+  CALL DELB
+  POP B
+  RET
+END

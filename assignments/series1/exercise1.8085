@@ -1,0 +1,41 @@
+INPUT:	
+	LDA 2000H
+	ANI 0FH   ; get 4 LSB
+	MOV E,A   ; count from 0 to E
+	MVI A,00H ; initialize counter
+COUNT_UP:
+	MOV D,A	  	 ; store A
+	CALL MSB_ON     
+	MOV A,D		 ; restore A
+	CMA
+	STA 3000H
+	CMA
+	CALL WAIT_1_SEC
+	CMP E
+	JNC COUNT_DOWN  ; if counter = E then count down
+	INR A           ; increase counter
+	JMP COUNT_UP
+COUNT_DOWN:
+	MOV D,A	  	 ; store A
+	CALL MSB_ON
+	MOV A,D		 ; restore A
+	CMA
+	STA 3000H
+	CMA
+	CALL WAIT_1_SEC
+	CPI 00H
+	JZ INPUT       ; if counter
+	DCR A          ; decrease counter
+	JMP COUNT_DOWN
+WAIT_1_SEC:
+	PUSH B
+	LXI B,03E8H
+	CALL DELB
+	POP B
+	RET
+MSB_ON:                ; loops until input_msb == 1
+  LDA 2000H            ; A <- input
+  ANI 80H              ; keep msb
+  JZ MSB_ON            ; if msb = 0
+  RET
+END

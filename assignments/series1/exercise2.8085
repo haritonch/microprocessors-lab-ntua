@@ -1,0 +1,57 @@
+IN 10H
+READ_DIGITS:
+	CALL KIND
+	MOV B,A      ; B stores x
+	CALL KIND
+  	MOV C,A      ; C stores y
+X_TIMES_16_PLUS_Y:
+ 	MOV A,B		; A = x
+	RLC
+	RLC
+	RLC
+	RLC			; A = 16x
+	ADD C		; A = 16x+y
+	MOV B,A		; B stores 16x+y
+BCD:
+	CALL FIND_100S    ; returns 100s in reg E and remainder in L
+	CALL FIND_10S     ; returns  10s in reg H and remainder in L
+  	; at this point we have 100s in E, 10s in H and 1s in L
+
+DISPLAY:
+  	MOV A,L
+	STA 0900H
+	MOV A,H
+	STA 0901H
+	MOV A,E
+	STA 0902H
+	LXI D,0900H
+	CALL STDM
+	CALL DCD
+	JMP READ_DIGITS
+
+FIND_100S:
+  ; input: B = 16x+y
+  ; output: E = B/100, L = B%100
+	MOV A,B          ; 16x+y in A
+  	MOV L,B          ; L stores remainder
+	MVI E,00H        ; E stores 100s
+L100:
+	SUI 64H          ; A -= 100
+	RC              ; if A < 0 return
+  	INR E            ; else 100s++
+  	MOV L,A          ; refresh remainder
+  	JMP L100         ; loop
+
+FIND_10S:
+    ; input: L = (16x+y) % 100
+    ; output: H = (16x+y) / 10, L = (16x+y) % 10
+  	MOV A,L         ; A init with (16x+y) % 100
+  	MVI H,00H      ; H stores 10s
+L10:
+  	SUI 0AH         ; A -= 10
+  	RC              ; if A < 0 return
+  	INR H           ; else 10s++
+  	MOV L,A         ; refresh remainder
+  	JMP L10         ; loop
+
+END
