@@ -1,3 +1,5 @@
+; Authors: Iasonas Nikolaou, Chariton Charitonidis
+
 start:
 	.org 0x0
 	rjmp init
