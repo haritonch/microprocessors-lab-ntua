@@ -5,6 +5,7 @@ start:
 	out DDRC,r26 ; input
 	ser r26
 	out DDRB, r26 ; output
+
 loop:
 	in r16, PINC
 	andi r16,0x0F
@@ -16,11 +17,11 @@ loop:
 	mov r20, r19 ; r20 = D
 	lsr r20
 
-	mov r21, r17 ; r21 = A'B
-	com r21
-	and r21, r18
+	mov r21, r17 ; r21 = A
+	com r21      ; r21 = A'
+	and r21, r18 ; r21 = A'B
 
-	mov r22, r18; r6 = B'CD
+	mov r22, r18; r22 = B'CD
 	com r22
 	and r22, r19
 	and r22, r20
@@ -36,8 +37,8 @@ loop:
 	and r25, r24
 
 	lsl r25
-	andi r25, 0x02 ; F1 at 2nd bit
-	andi r21, 0x01 ; F0 at LSB
+	andi r25, 0x02
+	andi r21, 0x01
 
 	or r21, r25
 	mov r26, r21
