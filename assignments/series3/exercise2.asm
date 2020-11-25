@@ -1,3 +1,5 @@
+; Authors: Iasonas Nikolaou, Chariton Charitonidis
+
 .DSEG
 _tmp_: .byte 2
 
